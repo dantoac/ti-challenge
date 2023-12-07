@@ -1,9 +1,10 @@
 import pytest
 from data_capture import DataCapture, Stats
 
+
 @pytest.fixture()
 def sample_input():
-    return [3, 9, 3, 4, 6] #[3, 3, 4, 6, 9]
+    return [3, 9, 3, 4, 6]  # [3, 3, 4, 6, 9]
 
 
 @pytest.fixture()
@@ -27,23 +28,21 @@ class TestDataCapture:
         stats = capture.build_stats()
         assert stats.less(9) == 0
 
-    def test_add_wrong_type_value(self, capture):
-        with pytest.raises(TypeError):
-            capture.add('text')
-        with pytest.raises(TypeError):
-            capture.add(3.14)
-        with pytest.raises(TypeError):
-            capture.add([])
-        with pytest.raises(TypeError):
-            capture.add({})
-        with pytest.raises(TypeError):
-            capture.add(None)
-
     def test_add_wrong_value(self, capture):
         with pytest.raises(ValueError):
             capture.add(1001)
         with pytest.raises(ValueError):
             capture.add(-1)
+        with pytest.raises(ValueError):
+            capture.add('string')
+        with pytest.raises(ValueError):
+            capture.add(3.14)
+        with pytest.raises(ValueError):
+            capture.add([])
+        with pytest.raises(ValueError):
+            capture.add({})
+        with pytest.raises(ValueError):
+            capture.add(None)
 
 
 class TestBuildStats:
@@ -70,16 +69,23 @@ class TestBuildStats:
     def test_counting_less_than(self, stats):
         assert stats.less(4) == 2
         assert stats.less(6) == 3
+        with pytest.raises(ValueError):
+            assert stats.less(-4) == None
+            assert stats.less(0) == None
+            assert stats.less(9999) == None
 
     def test_counting_greater_than(self, stats):
         assert stats.greater(3) == 3
         assert stats.greater(4) == 2
+        with pytest.raises(ValueError):
+            assert stats.greater(-4) == None
+            assert stats.greater(0) == None
+            assert stats.greater(9999) == None
 
     def test_counting_between(self, stats):
-        #assert stats.between(6, 3) == 4
+        assert stats.between(6, 3) == 4
         assert stats.between(3, 6) == 4
         assert stats.between(3, 3) == 2
 
-    # def test_unknown_values_between(self, stats):
-    #     with pytest.raises(KeyError):
-    #         stats.between(2, 8)
+    def test_unknown_values_between(self, stats):
+        stats.between(2, 8) == None
