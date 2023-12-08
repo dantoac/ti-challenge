@@ -19,7 +19,7 @@ class DataCapture:
 
     def add(self, num: int) -> None:
         """
-        Adds a number to the frequencies dictionary and updates the frequency sum.
+        Adds a number to the collection and saves its frequency.
 
         Parameters:
             num (int): The number to be added to the frequencies dictionary.
@@ -66,7 +66,7 @@ class Stats:
 
     def between(self, lower: int, upper: int) -> int:
         """
-        Calculate the sum of integers between a lower and upper bound.
+        Calculate the total number of values in te collection between a lower and upper bound.
 
         Parameters:
             lower (int): The lower bound of the range.
