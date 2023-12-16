@@ -33,8 +33,6 @@ class DataCapture:
 
         If the number is smaller than the current minimum number (self.min_num), it updates the minimum number.
 
-        Note: The method assumes that the input number is a positive integer and doesn't perform any validation.
-
         Example usage:
             obj = ClassName()
             obj.add(10)
@@ -91,40 +89,40 @@ class Stats:
 
     def less(self, num: int) -> Optional[int]:
         """
-        Return the value from the `less_count` list at the given index `num` if the `num` is a positive integer within the maximum value. Otherwise, return None.
+        Returns the value at the given index if the number is a positive integer until the maximum value.
 
-        Parameters:
-            num (int): The index of the value to be returned from the `less_count` list.
+        Args:
+            num (int): The input number.
 
         Returns:
-            Optional[int]: The value from the `less_count` list at the given index `num`, or None if `num` is not a positive integer within the maximum value.
+            Optional[int]: The value at the given index if the number is a positive integer until the maximum value.
         """
         if is_positive_integer_until_max_value(num):
             return self.less_count[num]
 
     def greater(self, num: int) -> Optional[int]:
         """
-        Retrieve the greater count for a given number.
+        Return the value at index 'num' from the 'greater_count' list if 'num' is a positive integer within the maximum value.
 
-        Args:
-            num (int): The number to check.
+        Parameters:
+            num (int): The index of the value to retrieve from the 'greater_count' list.
 
         Returns:
-            Optional[int]: The greater count for the given number, if it is a positive integer until the maximum value. Otherwise, None.
+            Optional[int]: The value at index 'num' from the 'greater_count' list if 'num' is a positive integer within the maximum value. Otherwise, returns None.
         """
         if is_positive_integer_until_max_value(num):
             return self.greater_count[num]
 
     def between(self, lower: int, upper: int) -> int:
         """
-        Calculates the number of elements in the `less_count` array between the given `lower` and `upper` values.
+        Find the number of elements in the `less_count` list between the given `lower` and `upper` bounds.
 
-        Args:
+        Parameters:
             lower (int): The lower bound of the range.
             upper (int): The upper bound of the range.
 
         Returns:
-            int: The number of elements in the `less_count` array between `lower` and `upper`.
+            int: The number of values between `lower` and `upper` in the `less_count` list.
         """
         if (
                 is_positive_integer_until_max_value(lower)
