@@ -1,13 +1,16 @@
-from typing import Optional, List
+from typing import Optional
 
 MAX_VALUE = 1000
 
 
-def is_positive_integer_until_max_value(num: int = 0) -> bool:
-    if isinstance(num, int) and 0 <= num <= MAX_VALUE:
-        return True
-    else:
-        raise ValueError(f'Value should be a Positive Integer less than {MAX_VALUE}')
+def is_positive_integer_until_max_value(num: int) -> bool:
+    """
+    Check if a given number is a positive integer within the maximum value.
+
+    :param num: The number to be checked.
+    :return: True if the number is a positive integer within the maximum value, False otherwise.
+    """
+    return isinstance(num, int) and 0 <= num <= MAX_VALUE
 
 
 class DataCapture:
@@ -16,101 +19,124 @@ class DataCapture:
         self.frequencies = {}
         self.max_num = 0
         self.freq_sum = 0
+        self.min_num = 0
 
     def add(self, num: int) -> None:
         """
-        Adds a number to the collection and saves its frequency.
+        :param num: The number to be added to the frequencies dictionary.
+        :return: None
 
-        Parameters:
-            num (int): The number to be added to the frequencies dictionary.
+        This method adds the given number to the frequencies dictionary. It increments the frequency count of the number
+        in the dictionary by 1. It also updates the total frequency sum.
 
-        Returns:
-            None
+        If the number is greater than the current maximum number (self.max_num), it updates the maximum number.
+
+        If the number is smaller than the current minimum number (self.min_num), it updates the minimum number.
+
+        Note: The method assumes that the input number is a positive integer and doesn't perform any validation.
+
+        Example usage:
+            obj = ClassName()
+            obj.add(10)
         """
-        if is_positive_integer_until_max_value(num):
+        if not is_positive_integer_until_max_value(num):
+            return False
+        else:
             self.frequencies[num] = self.frequencies.get(num, 0) + 1
             self.freq_sum += 1
             if num > self.max_num:
                 self.max_num = num
+            if num < self.min_num:
+                self.min_num = num
 
     def build_stats(self):
         """
-        Build the statistics for the given frequencies.
+        Generate a Stats object using the frequencies and max_num attributes.
 
         Returns:
-            Stats: The statistics object containing less, between and greater values for each frequency.
+            Stats: A Stats object initialized with the frequencies and max_num attributes.
         """
-        return Stats(self.frequencies, self.freq_sum, self.max_num)
+        return Stats(self.frequencies, self.max_num)
 
 
 class Stats:
 
-    def __init__(self, frequencies: dict, total: int, max_num: int) -> None:
+    def __init__(self, frequencies: dict, max_num: int) -> None:
+        """
+        Initializes a new instance of the class.
+
+        Parameters:
+            frequencies (dict): A dictionary containing the frequencies of numbers.
+            max_num (int): The maximum number to calculate frequencies for.
+
+        Raises:
+            ValueError: If the frequencies dictionary is empty.
+
+        Returns:
+            None
+        """
         if not frequencies:
             raise ValueError("There's no data to build stats for")
-
         self.frequencies = frequencies
         self.stats = {}
+        self.max_num = max_num
+        self.less_count = [0] * (self.max_num + 2)
+        self.greater_count = [0] * (self.max_num + 2)
+        # calculate less count
+        for i in range(1, self.max_num + 2):
+            self.less_count[i] = self.less_count[i - 1] + frequencies.get(i - 1, 0)
+        # calculate greater count
+        for i in range(self.max_num, -1, -1):
+            self.greater_count[i] = self.greater_count[i + 1] + frequencies.get(i + 1, 0)
 
-        self.prefix_sum = [0] * (max_num + 1)
+    def less(self, num: int) -> Optional[int]:
+        """
+        Return the value from the `less_count` list at the given index `num` if the `num` is a positive integer within the maximum value. Otherwise, return None.
 
-        total_lt = 0
-        total_gt = total
+        Parameters:
+            num (int): The index of the value to be returned from the `less_count` list.
 
-        for num in range(max_num + 1):
-            frequency = self.frequencies.get(num, 0)
-            self.stats[num] = {'count_lt': total_lt, 'count_gt': total_gt - frequency, 'value': num}
-            total_lt += frequency
-            total_gt -= frequency
-            self.prefix_sum[num] = total_lt
+        Returns:
+            Optional[int]: The value from the `less_count` list at the given index `num`, or None if `num` is not a positive integer within the maximum value.
+        """
+        if is_positive_integer_until_max_value(num):
+            return self.less_count[num]
+
+    def greater(self, num: int) -> Optional[int]:
+        """
+        Retrieve the greater count for a given number.
+
+        Args:
+            num (int): The number to check.
+
+        Returns:
+            Optional[int]: The greater count for the given number, if it is a positive integer until the maximum value. Otherwise, None.
+        """
+        if is_positive_integer_until_max_value(num):
+            return self.greater_count[num]
 
     def between(self, lower: int, upper: int) -> int:
         """
-        Calculate the total number of values in te collection between a lower and upper bound.
+        Calculates the number of elements in the `less_count` array between the given `lower` and `upper` values.
 
-        Parameters:
+        Args:
             lower (int): The lower bound of the range.
             upper (int): The upper bound of the range.
 
         Returns:
-            int: The total number of values between the lower and upper bounds.
+            int: The number of elements in the `less_count` array between `lower` and `upper`.
         """
         if (
-                is_positive_integer_until_max_value(upper)
-                and is_positive_integer_until_max_value(lower)
+                is_positive_integer_until_max_value(lower)
+                and is_positive_integer_until_max_value(upper)
         ):
+
             # reordering parameter values
             if lower > upper:
                 lower, upper = upper, lower
 
-            if lower > 0:
-                return self.prefix_sum[upper] - self.prefix_sum[lower - 1]
-            else:
-                return self.prefix_sum[upper]
+            if upper > self.max_num:
+                # this is to make sure that we always get an index if the upper bound parameter is greater than the maximum value captured
+                upper = self.max_num
 
-    def less(self, num: int) -> Optional[int]:
-        """
-        Get the count of numbers in the collection that are less than the given number.
-
-        Parameters:
-            num (int): The number to compare.
-
-        Returns:
-            int or None: The count of numbers in the collection that are less than the given number, or None if the number is not a positive integer until the max value.
-        """
-        if is_positive_integer_until_max_value(num):
-            return self.stats.get(num).get('count_lt', 0)
-
-    def greater(self, num: int) -> Optional[int]:
-        """
-        Get the count of numbers in the collection that are grater than the given number.
-
-        Args:
-            num (int): The number to compare.
-
-        Returns:
-            int or None: The count of numbers in the collection where `num` is greater than the specific value. Returns `None` if `num` is not a positive integer or exceeds the maximum value.
-
-        """
-        if is_positive_integer_until_max_value(num):
-            return self.stats.get(num).get('count_gt', 0)
+            return self.less_count[upper + 1]
