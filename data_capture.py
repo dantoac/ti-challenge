@@ -83,9 +83,8 @@ class Stats:
         # calculate less count
         for i in range(1, self.max_num + 2):
             self.less_count[i] = self.less_count[i - 1] + frequencies.get(i - 1, 0)
-        # calculate greater count
-        for i in range(self.max_num, -1, -1):
-            self.greater_count[i] = self.greater_count[i + 1] + frequencies.get(i + 1, 0)
+            j = self.max_num + 2 - i  # calculate index for the 'greater_count' in reverse
+            self.greater_count[j - 1] = self.greater_count[j] + frequencies.get(j, 0)
 
     def less(self, num: int) -> Optional[int]:
         """
